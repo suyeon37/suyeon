@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성수동 다중집객 공간 인지 및 행동 특성 연구</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #e6f2e7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 640px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark-blue': '#1a5c2e',
+                        'brand-mid-blue': '#2d7a4a',
+                        'brand-light-blue': '#4a9d6a',
+                        'brand-pale-blue': '#7fc99a',
+                        'brand-bg-blue': '#e6f2e7',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-brand-bg-blue text-brand-mid-blue">
+
+    <header class="bg-brand-dark-blue text-white p-6 md:p-10 text-center shadow-lg">
+        <h1 class="text-3xl md:text-5xl font-bold mb-2">성수동 다중집객 공간</h1>
+        <p class="text-xl md:text-2xl font-light">인간 인지 및 행동 특성 분석</p>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-brand-dark-blue mb-4">연구 개요</h2>
+            <p class="text-base md:text-lg leading-relaxed">
+                본 연구는 최근 가장 주목받는 상업 및 문화 지구인 성수동의 다중집객 공간을 대상으로, 방문객들의 공간 인지 방식과 그에 따른 구체적인 행동 패턴을 분석합니다. 이를 통해 복합 문화 공간의 사용자 경험을 심층적으로 이해하고자 합니다.
+            </p>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <article class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-brand-dark-blue mb-4">주요 방문객 연령대</h3>
+                <p class="mb-4">성수동 다중집객 공간의 방문객은 20대가 45%로 가장 높은 비율을 차지했으며, 30대가 그 뒤를 이었습니다. 이는 성수동이 젊은 세대에게 강력하게 소구하는 트렌디한 공간임을 시사합니다.</p>
+                <div class="chart-container max-w-lg">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-brand-dark-blue mb-4">방문 목적</h3>
+                <p class="mb-4">방문객들의 주된 목적은 'F&B(카페/맛집)'와 '쇼핑(팝업/플래그십)'이 각각 40%, 35%로 가장 높게 나타났습니다. 단순 방문보다는 명확한 소비 목적을 가진 방문이 주를 이룹니다.</p>
+                <div class="chart-container max-w-lg">
+                    <canvas id="motivationChart"></canvas>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-brand-dark-blue mb-4">공간 인지 요인 (5점 만점)</h3>
+                <p class="mb-4">방문객들은 성수동 공간을 '트렌디함'과 '새로움/발견' 측면에서 매우 높게 평가했습니다. 반면, '편안함'은 상대적으로 낮고 '혼잡도'는 높게 인지하여, 공간의 쾌적성보다는 경험적 가치를 우선시하는 경향을 보였습니다.</p>
+                <div class="chart-container max-w-lg">
+                    <canvas id="cognitionChart"></canvas>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-brand-dark-blue mb-4">주요 관찰 행동 (중복 응답)</h3>
+                <p class="mb-4">'사진/영상 촬영'이 85%로 압도적으로 높은 비율을 보였습니다. 이는 공간 경험을 기록하고 공유하려는 욕구가 매우 강함을 나타내며, '매장 대기(웨이팅)'와 '정보 검색' 행동이 뒤를 이어, 활발한 탐색과 참여가 이루어지고 있음을 보여줍니다.</p>
+                <div class="chart-container max-w-lg">
+                    <canvas id="behaviorChart"></canvas>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                <h3 class="text-xl font-bold text-brand-dark-blue mb-4">일반적인 방문자 행동 흐름</h3>
+                <p class="mb-6">성수동 방문객들은 뚜렷한 행동 흐름을 보입니다. SNS 등을 통한 사전 정보 탐색 후 목적지를 방문하고, 대기 시간을 활용해 주변을 추가로 탐색하며, 공간 체험과 촬영을 통해 경험을 기록하고 다음 목적지로 이동하는 순환적 패턴이 관찰됩니다.</p>
+                <div class="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 text-center">
+                    
+                    <div class="p-4 bg-brand-bg-blue border-2 border-brand-light-blue rounded-lg shadow">
+                        <span class="text-3xl">📱</span>
+                        <p class="font-bold text-brand-dark-blue mt-2">1. 정보 검색<br>(SNS, 지도)</p>
+                    </div>
+                    
+                    <span class="text-3xl font-bold text-brand-mid-blue hidden md:block">→</span>
+                    <span class="text-3xl font-bold text-brand-mid-blue md:hidden">↓</span>
+
+                    <div class="p-4 bg-brand-bg-blue border-2 border-brand-light-blue rounded-lg shadow">
+                        <span class="text-3xl">☕</span>
+                        <p class="font-bold text-brand-dark-blue mt-2">2. 목적지 방문<br>(카페, 팝업스토어)</p>
+                    </div>
+                    
+                    <span class="text-3xl font-bold text-brand-mid-blue hidden md:block">→</span>
+                    <span class="text-3xl font-bold text-brand-mid-blue md:hidden">↓</span>
+
+                    <div class="p-4 bg-brand-bg-blue border-2 border-brand-light-blue rounded-lg shadow">
+                        <span class="text-3xl">🚶</span>
+                        <p class="font-bold text-brand-dark-blue mt-2">3. 대기 및<br>주변 탐색</p>
+                    </div>
+
+                    <span class="text-3xl font-bold text-brand-mid-blue hidden md:block">→</span>
+                    <span class="text-3xl font-bold text-brand-mid-blue md:hidden">↓</span>
+
+                    <div class="p-4 bg-brand-bg-blue border-2 border-brand-light-blue rounded-lg shadow">
+                        <span class="text-3xl">📸</span>
+                        <p class="font-bold text-brand-dark-blue mt-2">4. 체험 및 촬영<br>(경험 기록)</p>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mt-8">
+            <h2 class="text-2xl font-bold text-brand-dark-blue mb-4">결론 및 시사점</h2>
+            <p class="text-base md:text-lg leading-relaxed mb-4">
+                성수동 다중집객 공간의 방문객들은 '트렌디함'과 '새로운 경험'이라는 인지적 가치를 기반으로, '촬영'과 '탐색' 중심의 능동적인 행동 패턴을 보입니다. 
+            </p>
+            <p class="text-base md:text-lg leading-relaxed">
+                이는 단순한 공간 소비를 넘어, 경험을 기록하고 공유하는 '디지털 큐레이션' 행위가 공간 경험의 핵심임을 시사합니다. 따라서 향후 다중집객 공간 디자인은 물리적 쾌적성뿐만 아니라, 독특한 시각적 경험과 '찍을 거리'를 제공하는 것이 중요합니다.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-6 mt-8 text-brand-mid-blue">
+        <p>&copy; 2025. A Study on Human Cognitive and Behavioral Characteristics in Multi-Gathering Spaces.</p>
+    </footer>
+
+    <script>
+        function processLabels(labels, maxChars = 16) {
+            return labels.map(label => {
+                if (label.length <= maxChars) {
+                    return label;
+                }
+                
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+
+                words.forEach(word => {
+                    if ((currentLine + word).length > maxChars) {
+                        lines.push(currentLine.trim());
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine += word + ' ';
+                    }
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            });
+        }
+
+        function tooltipTitleCallback(tooltipItems) {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            } else {
+                return label;
+            }
+        }
+
+        const chartColors = ['#1a5c2e', '#2d7a4a', '#4a9d6a', '#7fc99a', '#a8d4b8'];
+        const commonTooltipOptions = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    }
+                }
+            }
+        };
+
+        function initCharts() {
+            const ageCtx = document.getElementById('ageChart')?.getContext('2d');
+            if (ageCtx) {
+                new Chart(ageCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['10대', '20대', '30대', '40대', '50대+'],
+                        datasets: [{
+                            label: '방문객 비율 (%)',
+                            data: [8, 45, 30, 12, 5],
+                            backgroundColor: chartColors.slice(0, 5),
+                        }]
+                    },
+                    options: {
+                        ...commonTooltipOptions,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            ...commonTooltipOptions.plugins,
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return value + '%' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const motivationCtx = document.getElementById('motivationChart')?.getContext('2d');
+            if (motivationCtx) {
+                const motivationLabels = ['F&B (카페/맛집)', '쇼핑 (팝업/플래그십)', '문화/예술 (전시)', '소셜/만남', '기타'];
+                new Chart(motivationCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: processLabels(motivationLabels),
+                        datasets: [{
+                            data: [40, 35, 10, 10, 5],
+                            backgroundColor: chartColors.slice(0, 5),
+                        }]
+                    },
+                    options: {
+                        ...commonTooltipOptions,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            ...commonTooltipOptions.plugins,
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            const cognitionCtx = document.getElementById('cognitionChart')?.getContext('2d');
+            if (cognitionCtx) {
+                const cognitionLabels = ['트렌디함', '새로움/발견', '공간의 매력', '편안함', '혼잡도 (부정)'];
+                new Chart(cognitionCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: processLabels(cognitionLabels),
+                        datasets: [{
+                            label: '인지 점수 (5점 만점)',
+                            data: [4.5, 4.2, 3.8, 2.5, 4.0],
+                            backgroundColor: 'rgba(45, 122, 74, 0.2)',
+                            borderColor: '#1a5c2e',
+                            pointBackgroundColor: '#1a5c2e',
+                        }]
+                    },
+                    options: {
+                        ...commonTooltipOptions,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 5,
+                                min: 0,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const behaviorCtx = document.getElementById('behaviorChart')?.getContext('2d');
+            if (behaviorCtx) {
+                const behaviorLabels = ['사진/영상 촬영', '매장 대기 (웨이팅)', '지도/정보 검색', '단순 보행/탐색', '일행과 대화'];
+                new Chart(behaviorCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: processLabels(behaviorLabels),
+                        datasets: [{
+                            label: '행동 비율 (%)',
+                            data: [85, 60, 70, 55, 75],
+                            backgroundColor: chartColors.slice(0, 5),
+                        }]
+                    },
+                    options: {
+                        ...commonTooltipOptions,
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        plugins: {
+                            ...commonTooltipOptions.plugins,
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return value + '%' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCharts);
+    </script>
+</body>
+</html>
