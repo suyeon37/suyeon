@@ -61,7 +61,7 @@
         /* Hero Section */
         .hero {
             height: 70vh;
-            background: linear-gradient(135deg, #4ecdc4 0%, #a8e6cf 100%);
+            background: radial-gradient(circle at center, #dfffe0 0%, #ecffee 45%, #f4fff7 80%, #f8fffa 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -69,6 +69,36 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(202, 255, 198, 0.9) 0%, rgba(202, 255, 198, 0) 75%);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(2px);
+            z-index: 0;
+            opacity: 0.9;
+        }
+        .hero-fourleaf {
+            position: absolute;
+            left: 50%;
+            top: 48%;
+            transform: translate(-50%, -50%) rotate(-6deg);
+            width: 260px;
+            height: 260px;
+            z-index: 0;
+            opacity: 0.9;
+            pointer-events: none;
+            filter: drop-shadow(0 25px 35px rgba(60, 120, 65, 0.2));
+        }
+        .hero-fourleaf svg {
+            width: 100%;
+            height: 100%;
         }
         .clover {
             position: absolute;
@@ -108,12 +138,16 @@
             font-size: 60px;
             margin-bottom: 20px;
             font-weight: 700;
+            color: #1f4d33;
+            text-shadow: 0 4px 18px rgba(255,255,255,0.45);
         }
 
         .hero p {
             font-size: 20px;
             margin-bottom: 30px;
-            opacity: 0.9;
+            opacity: 0.95;
+            color: #287052;
+            text-shadow: 0 3px 14px rgba(255,255,255,0.55);
         }
 
         .cta-button {
@@ -562,22 +596,26 @@
             box-shadow: 0 8px 32px rgba(40,80,60,0.15);
             position: relative;
         }
-        #maker-modal .modal-content {
-            max-width: 95%;
-            width: 95%;
-            max-height: 95vh;
-            height: 95vh;
-            padding: 50px 20px 20px;
-            overflow: hidden;
+        /* 영상 모달 전용: 화면의 절반 정도 크게 */
+        #how-modal .modal-content {
+            max-width: 60vw;
+            width: 60vw;
+            max-height: 60vh;
+            height: 60vh;
+            padding: 24px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        #maker-modal iframe {
+        #how-modal .dummy-image-box {
             width: 100%;
             height: 100%;
-            border: none;
-            border-radius: 8px;
-            flex: 1;
+            margin-top: 0;
+        }
+        #how-modal video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         .close-btn {
             position: absolute;
@@ -678,11 +716,12 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
-            <div class="logo">SUYEON</div>
+            <div class="logo">SUYEON'S GARDEN</div>
             <ul class="nav-menu">
-                <li><a href="#game">game</a></li>
-                <li><a href="#how">방법</a></li>
-                <li><a href="#effect">기대효과</a></li>
+                <li><a href="game.html">game</a></li>
+                <li><a href="#how">영상</a></li>
+                <li><a href="magic.html">기대효과</a></li>
+                <li><a href="https://gemini.google.com/share/7c167c89bf4a" target="_blank" rel="noopener noreferrer">스토리북</a></li>
                 <li><a href="#maker">만든이</a></li>
             </ul>
         </div>
@@ -792,6 +831,25 @@
             <ellipse cx="20.5" cy="12" rx="4.5" ry="4" fill="#70d896"/>
             <ellipse cx="12" cy="20.5" rx="4" ry="4.5" fill="#dfffe9"/>
         </g></svg>
+        <div class="hero-fourleaf" aria-hidden="true">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="heroCloverGrad" cx="0.5" cy="0.5" r="0.7">
+                        <stop offset="0%" stop-color="#e9ffef"/>
+                        <stop offset="45%" stop-color="#c9f7c7"/>
+                        <stop offset="100%" stop-color="#a3e7b4"/>
+                    </radialGradient>
+                </defs>
+                <g fill="url(#heroCloverGrad)" stroke="#b8f3ca" stroke-width="2">
+                    <ellipse cx="100" cy="55" rx="42" ry="50"/>
+                    <ellipse cx="55" cy="100" rx="50" ry="42"/>
+                    <ellipse cx="145" cy="100" rx="50" ry="42"/>
+                    <ellipse cx="100" cy="145" rx="42" ry="50"/>
+                </g>
+                <path d="M100 140 Q108 175 125 190" stroke="#acd9b4" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <circle cx="100" cy="100" r="18" fill="#dfffe9" stroke="#b8f3ca" stroke-width="2"/>
+            </svg>
+        </div>
         <div class="hero-content">
             <h1>균형에서 오는 자연</h1>
             <p>조화로운 자연을 만들기 위한,,,</p>
@@ -923,12 +981,12 @@
             </div>
         </div>
     </div>
-    <!-- Modal for 방법 Section -->
+    <!-- Modal for 영상 Section -->
     <div id="how-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeHowModal">&times;</span>
-            <div class="dummy-image-box">
-                <p style="text-align:center; color:#7ca183; font-size:18px;">여기에 방법 내용을 표시합니다.</p>
+            <div class="dummy-image-box" style="flex-direction:column; background:#d3e8d3;">
+                <video controls src="Untitled Video.mp4" style="max-width:100%; max-height:70vh; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.25); background:#000;"></video>
             </div>
         </div>
     </div>
@@ -947,7 +1005,12 @@
     <div id="maker-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeMakerModal">&times;</span>
-            <iframe src="INFO.html"></iframe>
+            <div class="dummy-image-box" style="flex-direction:column; align-items:flex-start; text-align:left; font-size:18px; color:#386851; line-height:1.8; padding:16px 24px;">
+                <div><strong>이름</strong> : 정수연</div>
+                <div><strong>전화번호</strong> : 010.9327.0832</div>
+                <div><strong>생년월일</strong> : 2000.03.07</div>
+                <div><strong>이메일</strong> : s201920289@gmail.com</div>
+            </div>
         </div>
     </div>
 
