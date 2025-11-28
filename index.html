@@ -751,6 +751,32 @@
             object-fit: contain;
         }
 
+        /* 기대효과 모달 전용: 큰 화면 크기 */
+        #effect-modal .modal-content {
+            max-width: 90vw;
+            width: 90vw;
+            max-height: 90vh;
+            height: 90vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #effect-modal .dummy-image-box {
+            width: 100%;
+            height: 100%;
+            margin-top: 0;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        #effect-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0 0 16px 16px;
+        }
+
         .close-btn {
             position: absolute;
             right: 18px;
@@ -1312,14 +1338,8 @@
     <div id="effect-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeEffectModal">&times;</span>
-            <div class="dummy-image-box"
-                style="font-size:17px; color:#2d5a3f; line-height:1.8; flex-direction:column; white-space:pre-wrap; text-align:left; justify-content:flex-start; align-items:flex-start; background: linear-gradient(145deg, #e6f7e9 0%, #f0fff4 100%); border: 1px solid #c1e1c5; box-shadow: inset 0 0 20px rgba(255,255,255,0.5); padding: 30px;">
-                <h3
-                    style="margin-bottom: 20px; font-size: 22px; color: #1f4d33; border-bottom: 2px solid #a8e063; padding-bottom: 10px; width: 100%;">
-                    🌿 기대효과</h3>
-                - 이 프로젝트를 통해 단순히 ‘자연친화’라는 막연한 개념이 아니라, 균형 없는 친환경은 또다른 파괴가 될 수 있다는 점을 전달하고자 함
-
-                - 바이오필릭 디자인의 핵심, 즉 인간과 자연, 그리고 공간의 균형이 무엇인지 더 깊이 이해하게 될 것임
+            <div class="dummy-image-box">
+                <iframe src="Untitled-1.html" title="기대효과"></iframe>
             </div>
         </div>
     </div>
