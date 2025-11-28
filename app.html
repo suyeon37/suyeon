@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블록 포레스트 (Block Forest)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Gen AI SDK -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        @keyframes bounce-short {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .animate-bounce-short {
+            animation: bounce-short 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-stone-50 text-stone-800 overflow-hidden h-screen w-screen">
+    <div id="root" class="h-full w-full"></div>
+
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+        window.GoogleGenAI = GoogleGenAI;
+    </script>
+
+    <script type="text/babel" data-type="module">
+        // --- Types & Constants ---
+        const GrowthStage = {
+            SAPLING: 0,
+            SMALL_TREE: 1,
+            MEDIUM_TREE: 2,
+            LARGE_TREE: 3,
+            GIANT_TREE: 4,
+            BUDDING_TREE: 5,
+            FULL_BLOOM_TREE: 6
+        };
+
+        const STEPS_PER_BLOCK = 100;
+        const BLOCKS_PER_STAGE = 20;
+
+        // --- Service ---
+        // API Key handling
+        const getApiKey = () => {
+            const key = localStorage.getItem('GEMINI_API_KEY');
+            return key;
+        };
+
+        const setApiKey = (key) => {
+            localStorage.setItem('GEMINI_API_KEY', key);
+            window.location.reload();
+        };
+
+        // Mock Data for Offline Mode
+        const MOCK_IMAGES = {
+            [GrowthStage.SAPLING]: "https://placehold.co/400x400/e6f4ea/1b5e20?text=Sapling+Tree",
+            [GrowthStage.SMALL_TREE]: "https://placehold.co/400x400/c8e6c9/1b5e20?text=Small+Tree",
+            [GrowthStage.MEDIUM_TREE]: "https://placehold.co/400x400/a5d6a7/1b5e20?text=Medium+Tree",
+            [GrowthStage.LARGE_TREE]: "https://placehold.co/400x400/81c784/1b5e20?text=Large+Tree",
+            [GrowthStage.GIANT_TREE]: "https://placehold.co/400x400/66bb6a/1b5e20?text=Giant+Tree",
+            [GrowthStage.BUDDING_TREE]: "https://placehold.co/400x400/f48fb1/880e4f?text=Budding+Tree",
+            [GrowthStage.FULL_BLOOM_TREE]: "https://placehold.co/400x400/f06292/880e4f?text=Full+Bloom"
+        };
+
+        const MOCK_MESSAGES = [
+            "한 걸음 더 걸으면 더 멋진 나무가 될 거예요! 🌱",
+            "블록을 모아서 나만의 숲을 만들어보세요! 🧱",
+            "오늘도 건강한 하루 되세요! 🏃",
+            "나무가 무럭무럭 자라고 있어요! 🌳",
+            "자연과 함께하는 시간, 정말 소중해요! ✨"
+        ];
+
+        const getPromptForStage = (stage) => {
+            const basePrompt = "A high-quality 3D render of a tree made entirely of plastic interlocking building blocks (Lego style). Isometric view, clean white background, soft studio lighting, voxel art style.";
+
+            switch (stage) {
+                case GrowthStage.SAPLING:
+                    return `${basePrompt} A small, cute sapling tree made of legos. A thin brown trunk with just a few bright green leaves on top. Simple and minimalist.`;
+                case GrowthStage.SMALL_TREE:
+                    return `${basePrompt} A sturdy small tree made of legos. A distinct brown trunk and a round, compact cluster of green lego leaves.`;
+                case GrowthStage.MEDIUM_TREE:
+                    return `${basePrompt} A medium-sized tree made of legos. The trunk is thicker, and the green foliage is lush and detailed with many small lego studs.`;
+                case GrowthStage.LARGE_TREE:
+                    return `${basePrompt} A large, majestic tree made of legos. Thick brown trunk with roots visible, a wide canopy of dark and light green lego leaves.`;
+                case GrowthStage.GIANT_TREE:
+                    return `${basePrompt} A massive, ancient tree made of legos. Complex root system spreading out, huge green canopy, very impressive construction scale.`;
+                case GrowthStage.BUDDING_TREE:
+                    return `${basePrompt} A large lego tree transitioning into spring. Green leaves mixed with many small pink and white lego studs representing flower buds ready to bloom.`;
+                case GrowthStage.FULL_BLOOM_TREE:
+                    return `${basePrompt} A spectacular lego tree in full bloom. The entire canopy is a cloud of pink and white lego flowers (Cherry Blossom style). Some loose lego flower petals on the ground. Magical and beautiful.`;
+                default:
+                    return `${basePrompt} A nice lego tree.`;
+            }
+        };
+
+        const generateLegoTreeImage = async (stage) => {
+            const apiKey = getApiKey();
+
+            // Offline fallback
+            if (!apiKey) {
+                console.log("No API key found, using mock image.");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return MOCK_IMAGES[stage];
+            }
+
+            try {
+                const ai = new window.GoogleGenAI({ apiKey });
+                const prompt = getPromptForStage(stage);
+
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.0-flash',
+                    contents: {
+                        parts: [{ text: prompt }]
+                    },
+                });
+
+                // Fallback to mock if no image data (since we are using text model as placeholder)
+                return MOCK_IMAGES[stage];
+
+            } catch (error) {
+                console.error("Failed to generate tree image:", error);
+                return MOCK_IMAGES[stage];
+            }
+        };
+
+        const generateEncouragement = async (steps, totalBlocks) => {
+            const apiKey = getApiKey();
+
+            // Offline fallback
+            if (!apiKey) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return MOCK_MESSAGES[Math.floor(Math.random() * MOCK_MESSAGES.length)];
+            }
+
+            try {
+                const ai = new window.GoogleGenAI({ apiKey });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.0-flash',
+                    contents: {
+                        parts: [{
+                            text: `User has walked ${steps} steps and stacked ${totalBlocks} lego blocks to build a tree. 
+                        Give a very short, cute, motivating message in Korean (maximum 1 sentence) encouraging them to walk more to find more blocks. 
+                        Use emojis related to trees, flowers, walking, or legos.` }]
+                    }
+                });
+                return response.response.text();
+            } catch (error) {
+                console.error("Failed to generate text:", error);
+                return MOCK_MESSAGES[Math.floor(Math.random() * MOCK_MESSAGES.length)];
+            }
+        };
+
+        // --- Components ---
+
+        const Header = () => {
+            return (
+                <header className="w-full p-4 bg-white/80 backdrop-blur-md border-b border-stone-200 flex justify-between items-center fixed top-0 z-50">
+                    <div className="flex items-center gap-2">
+                        <a href="index.html" className="mr-1 p-1 text-stone-400 hover:text-stone-800 transition-colors rounded-full hover:bg-stone-100" title="메인으로 돌아가기">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                        </a>
+                        <div className="w-8 h-8 bg-green-500 rounded-md shadow-inner flex items-center justify-center">
+                            <div className="w-4 h-4 bg-green-400 rounded-full"></div>
+                        </div>
+                        <h1 className="text-xl font-bold text-stone-800 tracking-tight">블록 포레스트</h1>
+                    </div>
+                    <div className="text-xs font-medium text-stone-500 px-2 py-1 bg-stone-100 rounded-full">
+                        Beta
+                    </div>
+                </header>
+            );
+        };
+
+        const TreeDisplay = ({ imageUrl, isLoading, stage }) => {
+            const stageName = [
+                "묘목", "작은 나무", "중간 나무", "큰 나무", "거대한 나무", "꽃망울 맺힌 나무", "활짝 핀 나무"
+            ][stage] || "알 수 없는 나무";
+
+            return (
+                <div className="relative w-full aspect-square max-w-md mx-auto mt-8 mb-4 p-6">
+                    <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-stone-50 rounded-3xl -z-10"></div>
+
+                    <div className="w-full h-full flex items-center justify-center relative">
+                        {isLoading ? (
+                            <div className="flex flex-col items-center gap-3 animate-pulse">
+                                <div className="w-16 h-16 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                                <p className="text-stone-500 font-medium text-sm">새로운 레고 나무를 조립 중...</p>
+                            </div>
+                        ) : imageUrl ? (
+                            <img
+                                src={imageUrl}
+                                alt={`Lego Tree Stage ${stage}`}
+                                className="w-full h-full object-contain drop-shadow-xl transition-all duration-500 transform hover:scale-105"
+                            />
+                        ) : (
+                            <div className="text-center text-stone-400">
+                                <p>나무 이미지를 불러올 수 없습니다.</p>
+                                <p className="text-xs mt-2">(API 키가 필요하거나 모델이 응답하지 않았습니다)</p>
+                            </div>
+                        )}
+
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full shadow-sm border border-stone-100">
+                            <span className="text-sm font-bold text-green-700">Lv.{stage + 1} {stageName}</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Controls = ({ steps, availableBlocks, blocksToNextStage, onWalk, onBuild, isBuilding }) => {
+            const progressToNextBlock = (steps % STEPS_PER_BLOCK) / STEPS_PER_BLOCK * 100;
+
+            return (
+                <div className="w-full max-w-md mx-auto bg-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] p-6 pb-10 border border-stone-100">
+                    <div className="flex justify-between mb-6">
+                        <div className="flex flex-col">
+                            <span className="text-xs text-stone-400 uppercase font-bold tracking-wider">Steps</span>
+                            <span className="text-2xl font-black text-stone-800">{steps.toLocaleString()}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-xs text-stone-400 uppercase font-bold tracking-wider">My Bricks</span>
+                            <div className="flex items-center gap-1">
+                                <div className="w-4 h-4 bg-yellow-400 rounded-sm border-b-2 border-r-2 border-yellow-600"></div>
+                                <span className="text-2xl font-black text-yellow-600">{availableBlocks}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <div className="flex justify-between text-xs text-stone-500 mb-1">
+                            <span>다음 블록까지</span>
+                            <span>{steps % STEPS_PER_BLOCK} / {STEPS_PER_BLOCK}</span>
+                        </div>
+                        <div className="w-full bg-stone-100 rounded-full h-3 overflow-hidden">
+                            <div
+                                className="bg-green-400 h-full rounded-full transition-all duration-300"
+                                style={{ width: `${progressToNextBlock}%` }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <button
+                            onClick={onWalk}
+                            className="bg-stone-100 hover:bg-stone-200 active:scale-95 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-2 group"
+                        >
+                            <div className="bg-white p-3 rounded-full shadow-sm group-hover:rotate-12 transition-transform">
+                                👣
+                            </div>
+                            <span className="font-bold text-stone-600">걷기 (시뮬레이션)</span>
+                        </button>
+
+                        <button
+                            onClick={onBuild}
+                            disabled={availableBlocks === 0 || isBuilding}
+                            className={`
+                                relative overflow-hidden rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all active:scale-95
+                                ${availableBlocks > 0
+                                    ? 'bg-yellow-400 hover:bg-yellow-300 shadow-lg shadow-yellow-200 text-yellow-900'
+                                    : 'bg-stone-200 text-stone-400 cursor-not-allowed'}
+                            `}
+                        >
+                            <div className={`bg-white/30 p-3 rounded-full ${availableBlocks > 0 ? 'animate-bounce-short' : ''}`}>
+                                🧱
+                            </div>
+                            <span className="font-bold">
+                                {isBuilding ? '조립 중...' : '쌓기'}
+                            </span>
+                            {availableBlocks > 0 && (
+                                <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                        <p className="text-xs text-stone-400">
+                            다음 성장까지 블록 {blocksToNextStage}개 필요
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- App ---
+        const App = () => {
+            const [stats, setStats] = React.useState({
+                steps: 0,
+                availableBlocks: 0,
+            });
+
+            const [tree, setTree] = React.useState({
+                stage: GrowthStage.SAPLING,
+                blocksAdded: 0,
+                totalBlocks: 0,
+                imageUrl: null,
+                name: "나의 첫 나무",
+            });
+
+            const [isGenerating, setIsGenerating] = React.useState(false);
+            const [message, setMessage] = React.useState("걸음을 걸어 블록을 모아보세요!");
+            const [showApiKeyModal, setShowApiKeyModal] = React.useState(!getApiKey());
+            const [apiKeyInput, setApiKeyInput] = React.useState("");
+
+            React.useEffect(() => {
+                const initTree = async () => {
+                    setIsGenerating(true);
+                    // Mock initial image if API fails or no key
+                    const url = await generateLegoTreeImage(GrowthStage.SAPLING);
+                    setTree(prev => ({ ...prev, imageUrl: url }));
+                    setIsGenerating(false);
+                };
+                initTree();
+            }, []);
+
+            const handleWalk = React.useCallback(() => {
+                const stepsToAdd = 50;
+                setStats(prev => {
+                    const newSteps = prev.steps + stepsToAdd;
+                    const oldBlocksTotal = Math.floor(prev.steps / STEPS_PER_BLOCK);
+                    const newBlocksTotal = Math.floor(newSteps / STEPS_PER_BLOCK);
+                    const earnedBlocks = newBlocksTotal - oldBlocksTotal;
+                    return {
+                        steps: newSteps,
+                        availableBlocks: prev.availableBlocks + earnedBlocks
+                    };
+                });
+            }, []);
+
+            const handleBuild = React.useCallback(async () => {
+                if (stats.availableBlocks <= 0) return;
+
+                setStats(prev => ({
+                    ...prev,
+                    availableBlocks: prev.availableBlocks - 1
+                }));
+
+                setTree(prevTree => {
+                    const newBlocksAdded = prevTree.blocksAdded + 1;
+                    const newTotalBlocks = prevTree.totalBlocks + 1;
+                    let newStage = prevTree.stage;
+
+                    if (newBlocksAdded >= BLOCKS_PER_STAGE) {
+                        if (prevTree.stage < GrowthStage.FULL_BLOOM_TREE) {
+                            newStage = prevTree.stage + 1;
+                            triggerLevelUp(newStage, stats.steps, newTotalBlocks);
+                        }
+                        return {
+                            ...prevTree,
+                            stage: newStage,
+                            blocksAdded: 0,
+                            totalBlocks: newTotalBlocks
+                        };
+                    }
+
+                    return {
+                        ...prevTree,
+                        blocksAdded: newBlocksAdded,
+                        totalBlocks: newTotalBlocks
+                    };
+                });
+            }, [stats.availableBlocks, stats.steps]);
+
+            const triggerLevelUp = async (newStage, currentSteps, totalBlocks) => {
+                setIsGenerating(true);
+                const [imageUrl, motivation] = await Promise.all([
+                    generateLegoTreeImage(newStage),
+                    generateEncouragement(currentSteps, totalBlocks)
+                ]);
+
+                if (imageUrl) setTree(prev => ({ ...prev, imageUrl }));
+                if (motivation) setMessage(motivation);
+                setIsGenerating(false);
+            };
+
+            const handleSaveApiKey = () => {
+                if (apiKeyInput.trim()) {
+                    setApiKey(apiKeyInput.trim());
+                    setShowApiKeyModal(false);
+                }
+            };
+
+            const handleSkipApiKey = () => {
+                setShowApiKeyModal(false);
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-gradient-to-b from-blue-50 to-stone-100">
+                    <Header />
+
+                    <main className="flex-1 flex flex-col relative pt-16 pb-4 overflow-y-auto">
+                        <div className="px-6 pt-4 text-center">
+                            <p className="text-stone-600 font-medium bg-white/50 inline-block px-4 py-2 rounded-xl text-sm shadow-sm">
+                                {message}
+                            </p>
+                        </div>
+
+                        <TreeDisplay
+                            imageUrl={tree.imageUrl}
+                            isLoading={isGenerating}
+                            stage={tree.stage}
+                        />
+
+                        <div className="flex-1"></div>
+
+                        <div className="sticky bottom-0 px-4 pb-4 w-full z-10">
+                            <Controls
+                                steps={stats.steps}
+                                availableBlocks={stats.availableBlocks}
+                                blocksToNextStage={BLOCKS_PER_STAGE - tree.blocksAdded}
+                                onWalk={handleWalk}
+                                onBuild={handleBuild}
+                                isBuilding={isGenerating}
+                            />
+                        </div>
+                    </main>
+
+                    {showApiKeyModal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                            <div className="bg-white p-6 rounded-2xl shadow-xl w-80">
+                                <h2 className="text-lg font-bold mb-4">API 키 설정</h2>
+                                <p className="text-sm text-stone-500 mb-4">
+                                    Google Gemini API 키가 있으면 AI가 생성한 이미지를 볼 수 있습니다.
+                                    <br />
+                                    (없어도 기본 이미지로 실행됩니다)
+                                </p>
+                                <input
+                                    type="password"
+                                    className="w-full border p-2 rounded mb-4"
+                                    placeholder="API Key (Optional)"
+                                    value={apiKeyInput}
+                                    onChange={e => setApiKeyInput(e.target.value)}
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleSkipApiKey}
+                                        className="flex-1 bg-stone-200 text-stone-600 py-2 rounded-xl font-bold"
+                                    >
+                                        건너뛰기
+                                    </button>
+                                    <button
+                                        onClick={handleSaveApiKey}
+                                        className="flex-1 bg-green-500 text-white py-2 rounded-xl font-bold"
+                                    >
+                                        저장
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
